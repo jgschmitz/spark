@@ -1,0 +1,45 @@
+""""
+verifying schema in pyspark.sql http://spark.apache.org/docs/2.1.0/api/python/pyspark.sql.html
+pyspark.sql module
+""""
+
+>>> l = [('Alice', 1)]
+>>> spark.createDataFrame(l).collect()
+[Row(_1=u'Alice', _2=1)]
+>>> spark.createDataFrame(l, ['name', 'age']).collect()
+[Row(name=u'Alice', age=1)]
+>>> d = [{'name': 'Alice', 'age': 1}]
+>>> spark.createDataFrame(d).collect()
+[Row(age=1, name=u'Alice')]
+>>> rdd = sc.parallelize(l)
+>>> spark.createDataFrame(rdd).collect()
+[Row(_1=u'Alice', _2=1)]
+>>> df = spark.createDataFrame(rdd, ['name', 'age'])
+>>> df.collect()
+[Row(name=u'Alice', age=1)]
+>>> from pyspark.sql import Row
+>>> Person = Row('name', 'age')
+>>> person = rdd.map(lambda r: Person(*r))
+>>> df2 = spark.createDataFrame(person)
+>>> df2.collect()
+[Row(name=u'Alice', age=1)]
+>>> from pyspark.sql.types import *
+>>> schema = StructType([
+...    StructField("name", StringType(), True),
+...    StructField("age", IntegerType(), True)])
+>>> df3 = spark.createDataFrame(rdd, schema)
+>>> df3.collect()
+[Row(name=u'Alice', age=1)]
+>>> spark.createDataFrame(df.toPandas()).collect()  
+[Row(name=u'Alice', age=1)]
+>>> spark.createDataFrame(pandas.DataFrame([[1, 2]])).collect()  
+[Row(0=1, 1=2)]
+>>> spark.createDataFrame(rdd, "a: string, b: int").collect()
+[Row(a=u'Alice', b=1)]
+>>> rdd = rdd.map(lambda row: row[1])
+>>> spark.createDataFrame(rdd, "int").collect()
+[Row(value=1)]
+>>> spark.createDataFrame(rdd, "boolean").collect() 
+Traceback (most recent call last):
+    ...
+Py4JJavaError: ...
